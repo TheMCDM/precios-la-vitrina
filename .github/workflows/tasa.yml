@@ -1,0 +1,29 @@
+name: Actualizar tasa BCV
+
+on:
+  schedule:
+    - cron: "17 12 * * *"   # 8:17 a. m. Venezuela
+    - cron: "17 21 * * *"   # 5:17 p. m. Venezuela (BCV publica en la tarde)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tasa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar tasa oficial
+        run: |
+          curl -fsS --retry 3 https://ve.dolarapi.com/v1/dolares/oficial -o raw.json
+          jq -e '.promedio > 0' raw.json
+          jq '{tasa: .promedio, fecha: .fechaActualizacion}' raw.json > tasa.json
+          rm raw.json
+          cat tasa.json
+      - name: Guardar si cambió
+        run: |
+          git config user.name "tasa-bot"
+          git config user.email "tasa-bot@users.noreply.github.com"
+          git add tasa.json
+          git diff --cached --quiet || (git commit -m "Tasa BCV $(date -u +%F)" && git push)

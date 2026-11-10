@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Precios La Vitrina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: una columna tipo etiqueta de precio; escáner arriba, resultado como etiqueta colgante, catálogo debajo */
+:root{
+  --bg:#f7f3f8; --surface:#ffffff; --ink:#24203a; --muted:#6c6782;
+  --sakura:#e5487f; --sakura-soft:#fbe3ec; --mint:#178a6e; --mint-soft:#dcf3ec; --line:#e4dde9;
+  --display:"Dela Gothic One","Arial Black",system-ui,sans-serif;
+  --body:"Zen Maru Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17141f; --surface:#221e2d; --ink:#f1edf7; --muted:#a59fb8;
+  --sakura:#ff6f9f; --sakura-soft:#3a2130; --mint:#4fd1ac; --mint-soft:#163128; --line:#352f44; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17141f; --surface:#221e2d; --ink:#f1edf7; --muted:#a59fb8;
+  --sakura:#ff6f9f; --sakura-soft:#3a2130; --mint:#4fd1ac; --mint-soft:#163128; --line:#352f44; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sakura);font-weight:700}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,9vw,40px);line-height:1.05;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0}
+.scan{display:flex;flex-direction:column;gap:10px}
+.btn{appearance:none;border:0;border-radius:16px;background:var(--sakura);color:#fff;font:700 18px var(--body);padding:16px 20px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;width:100%}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn svg{width:22px;height:22px}
+#foto{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.search{width:100%;box-sizing:border-box;border:2px solid var(--line);border-radius:14px;padding:13px 14px;font:500 16px var(--body);background:var(--surface);color:var(--ink)}
+.status{min-height:1.5em;font-size:14px;color:var(--muted);margin:0}
+.status.err{color:var(--sakura)}
+/* etiqueta de precio */
+.tag{position:relative;background:var(--surface);border:2px solid var(--ink);border-radius:18px 18px 18px 18px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.tag::before{content:"";position:absolute;top:14px;right:16px;width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);background:var(--bg)}
+.tag-name{font-family:var(--display);font-weight:400;font-size:22px;line-height:1.2;margin:0;padding-right:30px;text-wrap:balance}
+.tag-meta{font-size:13px;color:var(--muted);margin:-8px 0 0}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.price{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.price.reg{background:var(--sakura-soft)}
+.price.div{background:var(--mint-soft)}
+.price .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.price .amt{font-family:var(--display);font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.price.reg .amt{color:var(--sakura)} .price.div .amt{color:var(--mint)}
+.price.single{grid-column:1 / -1}
+.note{font-size:13px;color:var(--muted);margin:0}
+/* catálogo */
+.cat h2{font-family:var(--display);font-weight:400;font-size:18px;margin:0 0 8px}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.list li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:11px 14px;border-top:1px solid var(--line);cursor:pointer}
+.list li:first-child{border-top:0}
+.list li:hover{background:var(--sakura-soft)}
+.list .n{min-width:0;font-weight:700;font-size:15px}
+.list .c{grid-column:1;font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+.list .p{grid-row:1 / span 2;grid-column:2;align-self:center;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.list .p small{display:block;font-weight:500;color:var(--mint);font-size:12px}
+footer{font-size:12px;color:var(--muted);text-align:center}
+#reader{display:none}
+.tasa{margin:2px 0 0;font-size:13px;font-weight:700;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;align-self:flex-start;font-variant-numeric:tabular-nums}
+.price.bs{grid-column:1 / -1;background:var(--bg);border:1px dashed var(--line);flex-direction:row;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.price.bs .amt{font-size:24px;color:var(--ink)}
+.list .p .bsl{color:var(--muted)}
+#cam{border-radius:16px;overflow:hidden;border:2px solid var(--ink);background:#000}
+#cam video{width:100%!important;display:block}
+.link{align-self:center;font-size:14px;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px}
+@media (prefers-reduced-motion:no-preference){.tag{animation:drop .35s ease-out}@keyframes drop{from{transform:translateY(-6px) rotate(-1deg)}to{transform:none}}}
+</style>
+</head><body>
+
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">La Vitrina · Arte y Regalos</span>
+    <h1>¿Cuánto cuesta?</h1>
+    <p class="tasa" id="tasa">Cargando tasa BCV…</p>
+    <p class="lead">Apunta la cámara al código de barras de la etiqueta y te mostramos el precio.</p>
+  </header>
+
+  <section class="scan">
+    <button class="btn" id="vivo" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg>
+      <span id="vivoTxt">Escanear código</span>
+    </button>
+    <div id="cam" hidden></div>
+    <label class="link" for="foto">
+      O toma una foto del código
+    </label>
+    <input type="file" id="foto" accept="image/*" capture="environment">
+    <input class="search" id="buscar" type="search" placeholder="O escribe el nombre o el código" autocomplete="off">
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <article class="tag" id="tag" aria-live="polite"></article>
+
+  <section class="cat">
+    <h2 id="catTitle">Todos los productos</h2>
+    <ul class="list" id="lista"></ul>
+  </section>
+
+  <footer>Precios en dólares; en bolívares a la tasa oficial del BCV del día. El precio en divisas aplica pagando en efectivo dólares o similar; confírmalo en caja.</footer>
+  <div id="reader"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script>
+const P = [
+  // [nombre, sku, tienda, regular, divisas|null, categoria]
+  ["Figura Chibi Death Note","FIG-DN","La Vitrina",10,8,"Figuras"],
+  ["Figura Chibi Chainsaw Man","FIG-CSM","La Vitrina",10,8,"Figuras"],
+  ["Figura Chibi Persona 5 Royal","FIG-P5","La Vitrina",18,14,"Figuras"],
+  ["Figura Hatsune Miku x Mimikyu","FIG-MIKU","La Vitrina",21,17,"Figuras"],
+  ["Figura Death Note","FIG-DNOTE","La Vitrina",8.5,7,"Figuras"],
+  ["Figura NieR:Automata","FIG-NIER","La Vitrina",8.5,7,"Figuras"],
+  ["Figura Re:Zero","FIG-REZERO","La Vitrina",8.5,7,"Figuras"],
+  ["Figura Genshin Impact","FIG-GENSHIN","La Vitrina",8.5,7,"Figuras"],
+  ["Figura JoJos grande","FIG-JOJOG","La Vitrina",8.5,7,"Figuras"],
+  ["Figura JoJos pequeña","FIG-JOJOP","La Vitrina",8.5,7,"Figuras"],
+  ["Llavero Pokémon 10 cm","LLA-POKE","La Vitrina",15,12,"Llaveros"],
+  ["Blind Box Naruto","BB-NARUTO","La Vitrina",20,15,"Blind box"],
+  ["Póster Death Note","POS-DNOTE","La Vitrina",2,null,"Pósters"],
+  ["Póster Hollow Knight","POS-HOLLOW","La Vitrina",2,null,"Pósters"],
+  ["Póster Nana","POS-NANA","La Vitrina",2,null,"Pósters"],
+  ["Póster Zelda","POS-ZELDA","La Vitrina",2,null,"Pósters"],
+  ["Póster Arcane","POS-ARCANE","La Vitrina",2,null,"Pósters"],
+  ["Póster JoJos","POS-JOJOS","La Vitrina",2,null,"Pósters"],
+  ["Póster Dr. Stone","POS-DRSTONE","La Vitrina",2,null,"Pósters"],
+  ["Póster Persona 5","POS-P5","La Vitrina",2,null,"Pósters"],
+  ["Póster Genshin Impact","POS-GENSHIN","La Vitrina",2,null,"Pósters"],
+  ["Póster Honkai: Star Rail","POS-HONKAI","La Vitrina",2,null,"Pósters"],
+  ["Caja Sorpresa Naruto","CAJA-NARUTO","La Vitrina Arte y Regalos",20,15,"Cajas sorpresa"],
+  ["Gachapón Pokémon","GACHA-POKE","La Vitrina Arte y Regalos",5,null,"Gachapones",6.25],
+  ["Álbum Arirang BTS","ALB-BTS","La Vitrina Arte y Regalos",75,65,"Álbumes K-pop"]
+];
+const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+const fmt = n => "$" + (Number.isInteger(n) ? n : n.toFixed(2).replace(".",","));
+let TASA = null, TASA_FECHA = null, current = null;
+const bsOf = p => TASA ? (p[6] || p[3]) * TASA : null;
+const fmtBs = n => "Bs " + n.toLocaleString("es-VE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const byCode = new Map(P.map(p => [norm(p[1]), p]));
+const $ = id => document.getElementById(id);
+const status = (t, err) => { $("status").textContent = t; $("status").className = "status" + (err ? " err" : ""); };
+
+function show(p){
+  const t = $("tag");
+  const div = p[4] != null
+    ? `<div class="price reg"><span class="lbl">Precio</span><span class="amt">${fmt(p[3])}</span></div>
+       <div class="price div"><span class="lbl">En divisas</span><span class="amt">${fmt(p[4])}</span></div>`
+    : `<div class="price reg single"><span class="lbl">Precio</span><span class="amt">${fmt(p[3])}</span></div>`;
+  current = p;
+  const bs = bsOf(p);
+  const bsBox = bs ? `<div class="price bs"><span class="lbl">En bolívares (BCV)</span><span class="amt">${fmtBs(bs)}</span></div>` : "";
+  t.innerHTML = `<h2 class="tag-name"></h2><p class="tag-meta"></p><div class="prices">${div}${bsBox}</div>
+    <p class="note">${p[4] != null ? "Pagando en divisas ahorras " + fmt(p[3]-p[4]) + "." : "Precio único."}</p>`;
+  t.querySelector(".tag-name").textContent = p[0];
+  t.querySelector(".tag-meta").textContent = p[5] + " · " + p[1];
+  t.style.animation = "none"; t.offsetHeight; t.style.animation = "";
+}
+
+function renderList(items){
+  const ul = $("lista"); ul.innerHTML = "";
+  items.forEach(p => {
+    const li = document.createElement("li"); li.tabIndex = 0;
+    li.innerHTML = `<span class="n"></span><span class="c"></span><span class="p">${fmt(p[3])}${p[4]!=null?`<small>${fmt(p[4])} divisas</small>`:""}${bsOf(p)?`<small class="bsl">${fmtBs(bsOf(p))}</small>`:""}</span>`;
+    li.querySelector(".n").textContent = p[0];
+    li.querySelector(".c").textContent = p[1];
+    const pick = () => { show(p); $("tag").scrollIntoView({behavior:"smooth",block:"center"}); };
+    li.onclick = pick; li.onkeydown = e => { if(e.key==="Enter") pick(); };
+    ul.appendChild(li);
+  });
+  $("catTitle").textContent = items.length === P.length ? "Todos los productos" : (items.length ? items.length + " resultado" + (items.length>1?"s":"") : "Sin resultados");
+}
+
+$("buscar").addEventListener("input", e => {
+  const q = norm(e.target.value);
+  if(!q){ renderList(P); status(""); return; }
+  const exact = byCode.get(q);
+  if(exact){ show(exact); }
+  const hits = P.filter(p => norm(p[0]).includes(q) || norm(p[1]).includes(q));
+  renderList(hits);
+  if(hits.length === 1) show(hits[0]);
+});
+
+function found(raw){
+  const p = byCode.get(norm(raw));
+  if(p){ show(p); status("Listo: código " + raw); }
+  else { status("Leímos el código " + raw + ", pero no está en la lista. Pregunta en caja o búscalo por nombre.", true); }
+}
+
+async function decode(file){
+  if("BarcodeDetector" in window){
+    try{
+      const bmp = await createImageBitmap(file);
+      const codes = await new BarcodeDetector().detect(bmp);
+      if(codes.length) return codes[0].rawValue;
+    }catch(e){}
+  }
+  if(window.Html5Qrcode){
+    const r = new Html5Qrcode("reader", false);
+    try{ return await r.scanFile(file, false); } finally { try{ r.clear(); }catch(e){} }
+  }
+  throw new Error("sin lector");
+}
+
+$("foto").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  status("Leyendo el código…");
+  try{ found(await decode(f)); }
+  catch(err){ status("No pudimos leer el código. Acerca más la cámara, con buena luz y el código derecho, o escribe el nombre arriba.", true); }
+  e.target.value = "";
+});
+
+async function loadTasa(){
+  const tries = [
+    async () => { const r = await fetch("tasa.json?" + Date.now()); if(!r.ok) throw 0; const j = await r.json(); return [j.tasa, j.fecha]; },
+    async () => { const r = await fetch("https://ve.dolarapi.com/v1/dolares/oficial"); if(!r.ok) throw 0; const j = await r.json(); return [j.promedio, j.fechaActualizacion]; }
+  ];
+  for(const t of tries){
+    try{ const [v,f] = await t(); if(typeof v === "number" && v > 0){ TASA = v; TASA_FECHA = f; break; } }catch(e){}
+  }
+  if(TASA){
+    const d = TASA_FECHA ? new Date(TASA_FECHA).toLocaleDateString("es-VE",{day:"numeric",month:"short"}) : "";
+    $("tasa").textContent = "Tasa BCV: " + fmtBs(TASA) + (d ? " · " + d : "");
+  } else {
+    $("tasa").textContent = "Tasa BCV no disponible ahora. Consulta el precio en Bs en caja.";
+  }
+  renderList(P.filter(p => !$("buscar").value || norm(p[0]+p[1]).includes(norm($("buscar").value))));
+  if(current) show(current);
+}
+loadTasa();
+let cam=null, on=false;
+async function stopCam(){ if(cam&&on){ try{await cam.stop();}catch(e){} } on=false; $("cam").hidden=true; $("vivoTxt").textContent="Escanear código"; }
+$("vivo").addEventListener("click", async () => {
+  if(on){ return stopCam(); }
+  if(!window.Html5Qrcode){ status("No se pudo cargar el lector. Usa la opción de foto o escribe el nombre.", true); return; }
+  $("cam").hidden=false; $("vivoTxt").textContent="Detener cámara";
+  cam = cam || new Html5Qrcode("cam", false);
+  try{
+    await cam.start({facingMode:"environment"}, {fps:10, qrbox:(w,h)=>({width:Math.floor(w*0.85),height:Math.floor(Math.min(h,w)*0.45)})},
+      async txt => { await stopCam(); found(txt); $("tag").scrollIntoView({behavior:"smooth",block:"center"}); }, () => {});
+    on=true; status("Apunta al código de barras, con buena luz.");
+  }catch(e){
+    $("cam").hidden=true; $("vivoTxt").textContent="Escanear código";
+    status("No pudimos abrir la cámara. Permite el acceso a la cámara, o usa la opción de foto.", true);
+  }
+});
+renderList(P);
+show(P[0]);
+status("Ejemplo: así se ve el precio de un producto.");
+</script>
+
+</body></html>
