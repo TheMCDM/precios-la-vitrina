@@ -131,14 +131,19 @@ const P = [
   ["Póster Honkai: Star Rail","POS-HONKAI","La Vitrina",2,null,"Pósters"],
   ["Caja Sorpresa Naruto","CAJA-NARUTO","La Vitrina Arte y Regalos",20,15,"Cajas sorpresa"],
   ["Gachapón Pokémon","GACHA-POKE","La Vitrina Arte y Regalos",5,null,"Gachapones",6.25],
-  ["Álbum Arirang BTS","ALB-BTS","La Vitrina Arte y Regalos",75,65,"Álbumes K-pop"]
+  ["Álbum Arirang BTS","ALB-BTS","La Vitrina Arte y Regalos",75,65,"Álbumes K-pop"],
+  ["Falda encaje asiática (F90420)","F90420","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
+  ["Falda encaje asiática (F90421)","F90421","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
+  ["Falda encaje asiática (F90423)","F90423","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
+  ["Falda pantalón brillos","FALPANBRI","La Vitrina Arte y Regalos",38,30,"Ropa"],
+  ["Top Experience","","La Vitrina Arte y Regalos",21.89,15,"Ropa"]
 ];
 const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]/g,"");
 const fmt = n => "Ref " + (Number.isInteger(n) ? n : n.toFixed(2).replace(".",","));
 let TASA = null, TASA_FECHA = null, current = null;
 const bsOf = p => TASA ? (p[6] || p[3]) * TASA : null;
 const fmtBs = n => "Bs " + n.toLocaleString("es-VE",{minimumFractionDigits:2,maximumFractionDigits:2});
-const byCode = new Map(P.map(p => [norm(p[1]), p]));
+const byCode = new Map(P.filter(p => p[1]).map(p => [norm(p[1]), p]));
 const $ = id => document.getElementById(id);
 const status = (t, err) => { $("status").textContent = t; $("status").className = "status" + (err ? " err" : ""); };
 
@@ -154,7 +159,7 @@ function show(p){
   t.innerHTML = `<h2 class="tag-name"></h2><p class="tag-meta"></p><div class="prices">${div}${bsBox}</div>
     <p class="note">${p[4] != null ? "Pagando en divisas ahorras " + fmt(p[3]-p[4]) + "." : "Precio único."}</p>`;
   t.querySelector(".tag-name").textContent = p[0];
-  t.querySelector(".tag-meta").textContent = p[5] + " · " + p[1];
+  t.querySelector(".tag-meta").textContent = p[5] + (p[1] ? " · " + p[1] : "");
   t.style.animation = "none"; t.offsetHeight; t.style.animation = "";
 }
 
@@ -164,7 +169,7 @@ function renderList(items){
     const li = document.createElement("li"); li.tabIndex = 0;
     li.innerHTML = `<span class="n"></span><span class="c"></span><span class="p">${fmt(p[3])}${p[4]!=null?`<small>${fmt(p[4])} divisas</small>`:""}${bsOf(p)?`<small class="bsl">${fmtBs(bsOf(p))}</small>`:""}</span>`;
     li.querySelector(".n").textContent = p[0];
-    li.querySelector(".c").textContent = p[1];
+    li.querySelector(".c").textContent = p[1] || "sin código";
     const pick = () => { show(p); $("tag").scrollIntoView({behavior:"smooth",block:"center"}); };
     li.onclick = pick; li.onkeydown = e => { if(e.key==="Enter") pick(); };
     ul.appendChild(li);
