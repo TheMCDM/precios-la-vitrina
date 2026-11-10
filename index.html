@@ -105,45 +105,17 @@ footer{font-size:12px;color:var(--muted);text-align:center}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script>
-const P = [
-  // [nombre, sku, tienda, regular, divisas|null, categoria]
-  ["Figura Chibi Death Note","FIG-DN","La Vitrina",10,8,"Figuras"],
-  ["Figura Chibi Chainsaw Man","FIG-CSM","La Vitrina",10,8,"Figuras"],
-  ["Figura Chibi Persona 5 Royal","FIG-P5","La Vitrina",18,14,"Figuras"],
-  ["Figura Hatsune Miku x Mimikyu","FIG-MIKU","La Vitrina",21,17,"Figuras"],
-  ["Figura Death Note","FIG-DNOTE","La Vitrina",8.5,7,"Figuras"],
-  ["Figura NieR:Automata","FIG-NIER","La Vitrina",8.5,7,"Figuras"],
-  ["Figura Re:Zero","FIG-REZERO","La Vitrina",8.5,7,"Figuras"],
-  ["Figura Genshin Impact","FIG-GENSHIN","La Vitrina",8.5,7,"Figuras"],
-  ["Figura JoJos grande","FIG-JOJOG","La Vitrina",8.5,7,"Figuras"],
-  ["Figura JoJos pequeña","FIG-JOJOP","La Vitrina",8.5,7,"Figuras"],
-  ["Llavero Pokémon 10 cm","LLA-POKE","La Vitrina",15,12,"Llaveros"],
-  ["Blind Box Naruto","BB-NARUTO","La Vitrina",20,15,"Blind box"],
-  ["Póster Death Note","POS-DNOTE","La Vitrina",2,null,"Pósters"],
-  ["Póster Hollow Knight","POS-HOLLOW","La Vitrina",2,null,"Pósters"],
-  ["Póster Nana","POS-NANA","La Vitrina",2,null,"Pósters"],
-  ["Póster Zelda","POS-ZELDA","La Vitrina",2,null,"Pósters"],
-  ["Póster Arcane","POS-ARCANE","La Vitrina",2,null,"Pósters"],
-  ["Póster JoJos","POS-JOJOS","La Vitrina",2,null,"Pósters"],
-  ["Póster Dr. Stone","POS-DRSTONE","La Vitrina",2,null,"Pósters"],
-  ["Póster Persona 5","POS-P5","La Vitrina",2,null,"Pósters"],
-  ["Póster Genshin Impact","POS-GENSHIN","La Vitrina",2,null,"Pósters"],
-  ["Póster Honkai: Star Rail","POS-HONKAI","La Vitrina",2,null,"Pósters"],
-  ["Caja Sorpresa Naruto","CAJA-NARUTO","La Vitrina Arte y Regalos",20,15,"Cajas sorpresa"],
-  ["Gachapón Pokémon","GACHA-POKE","La Vitrina Arte y Regalos",5,null,"Gachapones",6.25],
-  ["Álbum Arirang BTS","ALB-BTS","La Vitrina Arte y Regalos",75,65,"Álbumes K-pop"],
-  ["Falda encaje asiática (F90420)","F90420","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
-  ["Falda encaje asiática (F90421)","F90421","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
-  ["Falda encaje asiática (F90423)","F90423","La Vitrina Arte y Regalos",28.15,null,"Ropa"],
-  ["Falda pantalón brillos","FALPANBRI","La Vitrina Arte y Regalos",38,30,"Ropa"],
-  ["Top Experience","","La Vitrina Arte y Regalos",21.89,15,"Ropa"]
-];
+let P = [];
+const OVERRIDE_BS = { "GACHAPOKE": 6.25 }; // Gachapón Pokémon: en Bs se cobra como 6,25
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+const cleanName = n => cap(n.replace(/\s*#manuel\s*/i, " ").replace(/\s+/g, " ").trim());
 const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]/g,"");
 const fmt = n => "Ref " + (Number.isInteger(n) ? n : n.toFixed(2).replace(".",","));
 let TASA = null, TASA_FECHA = null, current = null;
 const bsOf = p => TASA ? (p[6] || p[3]) * TASA : null;
 const fmtBs = n => "Bs " + n.toLocaleString("es-VE",{minimumFractionDigits:2,maximumFractionDigits:2});
-const byCode = new Map(P.filter(p => p[1]).map(p => [norm(p[1]), p]));
+let byCode = new Map();
+function indexCodes(){ byCode = new Map(); P.forEach(p => (p[1]||"").split("|").filter(Boolean).forEach(c => byCode.set(norm(c), p))); }
 const $ = id => document.getElementById(id);
 const status = (t, err) => { $("status").textContent = t; $("status").className = "status" + (err ? " err" : ""); };
 
@@ -159,22 +131,24 @@ function show(p){
   t.innerHTML = `<h2 class="tag-name"></h2><p class="tag-meta"></p><div class="prices">${div}${bsBox}</div>
     <p class="note">${p[4] != null ? "Pagando en divisas ahorras " + fmt(p[3]-p[4]) + "." : "Precio único."}</p>`;
   t.querySelector(".tag-name").textContent = p[0];
-  t.querySelector(".tag-meta").textContent = p[5] + (p[1] ? " · " + p[1] : "");
+  t.querySelector(".tag-meta").textContent = p[2] + (p[5] ? " · " + p[5] : "") + (p[1] ? " · " + p[1].split("|")[0] : "");
   t.style.animation = "none"; t.offsetHeight; t.style.animation = "";
 }
 
+const MAX_LIST = 60;
 function renderList(items){
   const ul = $("lista"); ul.innerHTML = "";
-  items.forEach(p => {
+  items.slice(0, MAX_LIST).forEach(p => {
     const li = document.createElement("li"); li.tabIndex = 0;
     li.innerHTML = `<span class="n"></span><span class="c"></span><span class="p">${fmt(p[3])}${p[4]!=null?`<small>${fmt(p[4])} divisas</small>`:""}${bsOf(p)?`<small class="bsl">${fmtBs(bsOf(p))}</small>`:""}</span>`;
     li.querySelector(".n").textContent = p[0];
-    li.querySelector(".c").textContent = p[1] || "sin código";
+    li.querySelector(".c").textContent = p[2] + (p[1] ? " · " + p[1].split("|")[0] : "");
     const pick = () => { show(p); $("tag").scrollIntoView({behavior:"smooth",block:"center"}); };
     li.onclick = pick; li.onkeydown = e => { if(e.key==="Enter") pick(); };
     ul.appendChild(li);
   });
-  $("catTitle").textContent = items.length === P.length ? "Todos los productos" : (items.length ? items.length + " resultado" + (items.length>1?"s":"") : "Sin resultados");
+  const q = $("buscar").value.trim();
+  $("catTitle").textContent = !P.length ? "Cargando productos…" : !q ? P.length + " productos · escribe arriba para buscar" : (items.length ? items.length + " resultado" + (items.length>1?"s":"") + (items.length > MAX_LIST ? " (se muestran " + MAX_LIST + ")" : "") : "Sin resultados");
 }
 
 $("buscar").addEventListener("input", e => {
@@ -182,7 +156,7 @@ $("buscar").addEventListener("input", e => {
   if(!q){ renderList(P); status(""); return; }
   const exact = byCode.get(q);
   if(exact){ show(exact); }
-  const hits = P.filter(p => norm(p[0]).includes(q) || norm(p[1]).includes(q));
+  const hits = P.filter(p => norm(p[0]).includes(q) || norm(p[1]).includes(q) || norm(p[5]).includes(q));
   renderList(hits);
   if(hits.length === 1) show(hits[0]);
 });
@@ -252,9 +226,26 @@ $("vivo").addEventListener("click", async () => {
     status("No pudimos abrir la cámara. Permite el acceso a la cámara, o usa la opción de foto.", true);
   }
 });
+async function loadProducts(){
+  const files = [["datos/vitrina.json","La Vitrina"],["datos/grande.json","La Vitrina Arte y Regalos"]];
+  const all = [];
+  for(const [f, tienda] of files){
+    try{
+      const j = await (await fetch(f + "?" + Date.now())).json();
+      for(const r of j.productos){
+        const sku = r[1] || "";
+        const ov = sku.split("|").map(norm).map(c => OVERRIDE_BS[c]).find(Boolean) || null;
+        all.push([cleanName(r[0]), sku, tienda, r[3], r[4], r[2] || "", ov]);
+      }
+    }catch(e){}
+  }
+  P = all; indexCodes(); renderList(P);
+  if(!P.length){ status("No se pudieron cargar los productos. Intenta de nuevo en un momento.", true); return; }
+  const ej = P.find(p => /chibi death note/i.test(p[0])) || P[0];
+  show(ej); status("Ejemplo: así se ve el precio de un producto.");
+}
 renderList(P);
-show(P[0]);
-status("Ejemplo: así se ve el precio de un producto.");
+loadProducts();
 </script>
 
 </body></html>
