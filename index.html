@@ -99,7 +99,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <ul class="list" id="lista"></ul>
   </section>
 
-  <footer>Precios en dólares; en bolívares a la tasa oficial del BCV del día. El precio en divisas aplica pagando en efectivo dólares o similar; confírmalo en caja.</footer>
+  <footer>Precios en Ref (dólares de referencia); en bolívares a la tasa oficial del BCV del día. El precio en divisas aplica pagando en efectivo dólares o similar; confírmalo en caja.</footer>
   <div id="reader"></div>
 </div>
 
@@ -134,7 +134,7 @@ const P = [
   ["Álbum Arirang BTS","ALB-BTS","La Vitrina Arte y Regalos",75,65,"Álbumes K-pop"]
 ];
 const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-const fmt = n => "$" + (Number.isInteger(n) ? n : n.toFixed(2).replace(".",","));
+const fmt = n => "Ref " + (Number.isInteger(n) ? n : n.toFixed(2).replace(".",","));
 let TASA = null, TASA_FECHA = null, current = null;
 const bsOf = p => TASA ? (p[6] || p[3]) * TASA : null;
 const fmtBs = n => "Bs " + n.toLocaleString("es-VE",{minimumFractionDigits:2,maximumFractionDigits:2});
