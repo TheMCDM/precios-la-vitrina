@@ -234,6 +234,7 @@ async function loadProducts(){
       const j = await (await fetch(f + "?" + Date.now())).json();
       for(const r of j.productos){
         const sku = r[1] || "";
+        if(!sku) continue; // por ahora solo productos con código de barras
         const ov = sku.split("|").map(norm).map(c => OVERRIDE_BS[c]).find(Boolean) || null;
         all.push([cleanName(r[0]), sku, tienda, r[3], r[4], r[2] || "", ov]);
       }
