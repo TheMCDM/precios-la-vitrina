@@ -26,4 +26,4 @@ jobs:
           git config user.name "tasa-bot"
           git config user.email "tasa-bot@users.noreply.github.com"
           git add tasa.json
-          git diff --cached --quiet || (git commit -m "Tasa BCV $(date -u +%F)" && git push)
+          git diff --cached --quiet || (git commit -m "Tasa BCV $(date -u +%F)" && git pull --rebase origin main && git push)
