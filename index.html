@@ -195,8 +195,11 @@ async function loadTasa(){
     async () => { const r = await fetch("tasa.json?" + Date.now()); if(!r.ok) throw 0; const j = await r.json(); return [j.tasa, j.fecha]; },
     async () => { const r = await fetch("https://ve.dolarapi.com/v1/dolares/oficial"); if(!r.ok) throw 0; const j = await r.json(); return [j.promedio, j.fechaActualizacion]; }
   ];
-  for(const t of tries){
-    try{ const [v,f] = await t(); if(typeof v === "number" && v > 0){ TASA = v; TASA_FECHA = f; break; } }catch(e){}
+  // usa la tasa más reciente entre el archivo guardado y la fuente en vivo
+  const got = await Promise.all(tries.map(t => t().catch(() => null)));
+  for(const g of got){
+    if(!g) continue; const [v,f] = g;
+    if(typeof v === "number" && v > 0 && (!TASA_FECHA || String(f||"").slice(0,10) > String(TASA_FECHA).slice(0,10))){ TASA = v; TASA_FECHA = f; }
   }
   if(TASA){
     const M=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
