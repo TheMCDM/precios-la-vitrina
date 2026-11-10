@@ -2,8 +2,8 @@ name: Actualizar tasa BCV
 
 on:
   schedule:
-    - cron: "17 12 * * *"   # 8:17 a. m. Venezuela
-    - cron: "17 21 * * *"   # 5:17 p. m. Venezuela (BCV publica en la tarde)
+    - cron: "17 12 * * *"         # 8:17 a. m. Venezuela
+    - cron: "7,22,37,52 19-23 * * *"  # cada 15 min de 3:00 a 7:59 p. m. Venezuela (BCV publica en la tarde)
   workflow_dispatch:
 
 permissions:
