@@ -66,6 +66,9 @@ footer{font-size:12px;color:var(--muted);text-align:center}
 #cam video{width:100%!important;display:block}
 .link{align-self:center;font-size:14px;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px}
 @media (prefers-reduced-motion:no-preference){.tag{animation:drop .35s ease-out}@keyframes drop{from{transform:translateY(-6px) rotate(-1deg)}to{transform:none}}}
+.web{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-top:2px;font-size:13px;font-weight:700;color:var(--sakura);background:var(--sakura-soft);border-radius:999px;padding:5px 12px;text-decoration:none}
+.web svg{width:15px;height:15px}
+.btn.ghost{background:transparent;color:var(--sakura);border:2px solid var(--sakura);font-size:16px;padding:14px 18px;text-decoration:none;box-sizing:border-box}
 </style>
 </head><body>
 
@@ -75,6 +78,7 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <span class="eyebrow">La Vitrina · Arte y Regalos</span>
     <h1>¿Cuánto cuesta?</h1>
     <p class="tasa" id="tasa">Cargando tasa BCV…</p>
+    <a class="web" href="https://themcdm.github.io/Lavitrina.github.io/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v11h18V9M9 20v-6h6v6"/></svg>Visita nuestra página</a>
     <p class="lead">Apunta la cámara al código de barras de la etiqueta y te mostramos el precio.</p>
   </header>
 
@@ -98,6 +102,8 @@ footer{font-size:12px;color:var(--muted);text-align:center}
     <h2 id="catTitle">Todos los productos</h2>
     <ul class="list" id="lista"></ul>
   </section>
+
+  <a class="btn ghost" href="https://themcdm.github.io/Lavitrina.github.io/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v11h18V9M9 20v-6h6v6"/></svg>Conoce La Vitrina: categorías, ubicación y redes</a>
 
   <footer>Precios en Ref (dólares de referencia); en bolívares a la tasa oficial del BCV del día. El precio en divisas aplica pagando en efectivo dólares o similar; confírmalo en caja.</footer>
   <div id="reader"></div>
