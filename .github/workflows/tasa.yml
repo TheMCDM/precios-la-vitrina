@@ -15,12 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Descargar tasa oficial
-        run: |
-          curl -fsS --retry 3 https://ve.dolarapi.com/v1/dolares/oficial -o raw.json
-          jq -e '.promedio > 0' raw.json
-          jq '{tasa: .promedio, fecha: .fechaActualizacion}' raw.json > tasa.json
-          rm raw.json
-          cat tasa.json
+        run: python3 scripts/tasa.py && cat tasa.json
       - name: Guardar si cambió
         run: |
           git config user.name "tasa-bot"
